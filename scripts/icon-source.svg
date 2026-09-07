@@ -1,0 +1,27 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#33221c" />
+      <stop offset="55%" stop-color="#6f1523" />
+      <stop offset="100%" stop-color="#1b120f" />
+    </linearGradient>
+    <linearGradient id="feather" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8f1e5" />
+      <stop offset="100%" stop-color="#d8a94d" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)" />
+  <circle cx="380" cy="120" r="130" fill="#c6952f" opacity="0.18" />
+  <circle cx="120" cy="420" r="150" fill="#8a1f2d" opacity="0.25" />
+  <g transform="translate(256 256)">
+    <path
+      d="M 92 -140 C 20 -140 -70 -80 -95 40 C -105 85 -100 130 -85 165 L 60 20
+         C 40 45 10 70 -30 90
+         C 20 80 65 55 95 20
+         L 165 -50
+         C 150 -95 130 -125 92 -140 Z"
+      fill="url(#feather)"
+    />
+    <path d="M -85 165 L 40 40" stroke="#1b120f" stroke-width="14" stroke-linecap="round" />
+  </g>
+</svg>

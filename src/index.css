@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Playfair Display", "Georgia", serif;
+  --font-urdu: "Noto Nastaliq Urdu", serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink-950: #1b120f;
+  --color-ink-900: #241814;
+  --color-ink-800: #33221c;
+  --color-ink-700: #4a2f26;
+
+  --color-paper-50: #fdfaf5;
+  --color-paper-100: #f8f1e5;
+  --color-paper-200: #efe2cc;
+
+  --color-maroon-600: #8a1f2d;
+  --color-maroon-700: #6f1523;
+  --color-maroon-800: #591220;
+
+  --color-gold-400: #d8a94d;
+  --color-gold-500: #c6952f;
+  --color-gold-600: #a97a20;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-paper-100);
+  background-color: var(--color-ink-950);
+  background-image:
+    radial-gradient(55% 45% at 12% -10%, color-mix(in srgb, var(--color-maroon-600) 38%, transparent), transparent 70%),
+    radial-gradient(45% 38% at 105% 15%, color-mix(in srgb, var(--color-gold-500) 26%, transparent), transparent 70%),
+    radial-gradient(45% 40% at 40% 110%, color-mix(in srgb, var(--color-maroon-700) 30%, transparent), transparent 70%),
+    radial-gradient(70% 60% at 50% 50%, color-mix(in srgb, var(--color-maroon-800) 16%, transparent), transparent 75%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: 100% 100%, 100% 100%, 100% 100%, 200% 200%;
+  animation: drift 50s ease-in-out infinite alternate;
+  min-height: 100vh;
+}
+
+@keyframes drift {
+  0% {
+    background-position: 0% 0%, 100% 0%, 40% 100%, 30% 20%;
+  }
+  100% {
+    background-position: 0% 10%, 100% 20%, 50% 90%, 70% 80%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    animation: none;
+  }
+}
+
+.glow-card {
+  position: relative;
+  background-color: color-mix(in srgb, white 6%, transparent);
+  border: 1px solid color-mix(in srgb, white 12%, transparent);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 12%, transparent),
+    0 1px 2px color-mix(in srgb, black 20%, transparent);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-urdu {
+  font-family: var(--font-urdu);
+}
+
+::selection {
+  background-color: var(--color-gold-400);
+  color: var(--color-ink-950);
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: var(--color-gold-500);
+  border-radius: 9999px;
+}
