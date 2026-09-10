@@ -176,17 +176,12 @@ create policy "Authors can delete their own audio poems" on public.audio_poems
 create policy "Quotes are viewable by everyone" on public.quotes
   for select using (true);
 
--- Quote of the day: readable by anyone; any signed-in user can pick
--- (or replace) the poem featured for a given date.
+-- Quote of the day: readable by anyone. Picking / changing / removing it is
+-- restricted to admins — those policies live in the submissions section below
+-- (they need the public.is_admin() helper, defined there).
 alter table public.quote_of_day enable row level security;
 create policy "Quote of the day is viewable by everyone" on public.quote_of_day
   for select using (true);
-create policy "Signed-in users can set the quote of the day" on public.quote_of_day
-  for insert with check (auth.uid() = set_by);
-create policy "Signed-in users can change the quote of the day" on public.quote_of_day
-  for update using (auth.uid() is not null) with check (auth.uid() = set_by);
-create policy "Signed-in users can remove the quote of the day" on public.quote_of_day
-  for delete using (auth.uid() is not null);
 
 -- ============================================================
 -- Storage bucket for recorded poetry recitations
@@ -340,3 +335,17 @@ revoke all on function public.approve_submission(uuid, text, text) from public, 
 revoke all on function public.reject_submission(uuid, text) from public, anon;
 grant execute on function public.approve_submission(uuid, text, text) to authenticated;
 grant execute on function public.reject_submission(uuid, text) to authenticated;
+
+-- Quote of the Day: admin-only write (public read policy is defined above).
+drop policy if exists "Admins can set the quote of the day" on public.quote_of_day;
+create policy "Admins can set the quote of the day" on public.quote_of_day
+  for insert to authenticated with check (public.is_admin(auth.uid()));
+
+drop policy if exists "Admins can change the quote of the day" on public.quote_of_day;
+create policy "Admins can change the quote of the day" on public.quote_of_day
+  for update to authenticated
+  using (public.is_admin(auth.uid())) with check (public.is_admin(auth.uid()));
+
+drop policy if exists "Admins can remove the quote of the day" on public.quote_of_day;
+create policy "Admins can remove the quote of the day" on public.quote_of_day
+  for delete to authenticated using (public.is_admin(auth.uid()));

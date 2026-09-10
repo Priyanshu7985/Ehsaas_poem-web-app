@@ -2,9 +2,8 @@ import { useState, type MouseEvent } from 'react'
 import { Link } from 'react-router-dom'
 import CommentSection from './CommentSection'
 import { supabase } from '../lib/supabaseClient'
-import { todayISO } from '../lib/date'
+import { setQuoteOfDay } from '../lib/quoteOfDay'
 import { useAuth } from '../context/AuthContext'
-import { useAuthModal } from '../context/AuthModalContext'
 import { CATEGORIES, categoryEmoji, categoryLabel } from '../lib/categories'
 import ProofOfPublication from './ProofOfPublication'
 import type { Poem } from '../types'
@@ -47,8 +46,7 @@ export default function PoemCard({
   preview = false,
   onOpen,
 }: PoemCardProps) {
-  const { user } = useAuth()
-  const { openAuthModal } = useAuthModal()
+  const { user, isAdmin } = useAuth()
   const [showComments, setShowComments] = useState(!preview)
   const [liveCommentCount, setLiveCommentCount] = useState<number | null>(null)
   const [settingQuote, setSettingQuote] = useState(false)
@@ -92,14 +90,11 @@ export default function PoemCard({
   }
 
   const handleSetQuote = async () => {
-    if (!user) {
-      openAuthModal('signup', 'Sign up to feature a shayari as Quote of the Day.')
-      return
-    }
+    if (!user || !isAdmin) return
     setSettingQuote(true)
-    const { error } = await supabase
-      .from('quote_of_day')
-      .upsert({ date: todayISO(), poem_id: poem.id, set_by: user.id }, { onConflict: 'date' })
+    // `quote_of_day.date` is the primary key, so this replaces any poem
+    // already featured for today — the previous pick is removed automatically.
+    const { error } = await setQuoteOfDay(poem.id, user.id)
     setSettingQuote(false)
     if (!error) {
       setQuoteSet(true)
@@ -281,7 +276,7 @@ export default function PoemCard({
         </button>
 
         <div className="ml-auto flex items-center gap-2">
-          {!preview && (
+          {!preview && isAdmin && (
             <button
               onClick={(e) => {
                 stop(e)

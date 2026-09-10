@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { todayISO } from '../lib/date'
+import { QUOTE_OF_DAY_CHANGED_EVENT, clearQuoteOfDay } from '../lib/quoteOfDay'
 import { useAuth } from '../context/AuthContext'
 import type { Poem, Quote } from '../types'
 
@@ -12,13 +13,13 @@ function dayOfYear(date: Date) {
 }
 
 export default function QuoteOfDayBanner() {
-  const { user } = useAuth()
+  const { isAdmin } = useAuth()
   const [poemQuote, setPoemQuote] = useState<Poem | null>(null)
   const [textQuote, setTextQuote] = useState<Quote | null>(null)
   const [loading, setLoading] = useState(true)
   const [removing, setRemoving] = useState(false)
 
-  const loadFallbackQuote = async () => {
+  const loadFallbackQuote = useCallback(async () => {
     const { data } = await supabase.from('quotes').select('*')
     if (data && data.length > 0) {
       const index = dayOfYear(new Date()) % data.length
@@ -26,43 +27,35 @@ export default function QuoteOfDayBanner() {
     } else {
       setTextQuote(null)
     }
-  }
-
-  useEffect(() => {
-    let active = true
-
-    const load = async () => {
-      try {
-        const { data: pick } = await supabase
-          .from('quote_of_day')
-          .select('poem:poems(*, author:profiles(*))')
-          .eq('date', todayISO())
-          .maybeSingle()
-
-        if (!active) return
-
-        if (pick?.poem) {
-          setPoemQuote(pick.poem as unknown as Poem)
-          return
-        }
-
-        await loadFallbackQuote()
-      } finally {
-        if (active) setLoading(false)
-      }
-    }
-
-    load()
-    return () => {
-      active = false
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const load = useCallback(async () => {
+    const { data: pick } = await supabase
+      .from('quote_of_day')
+      .select('poem:poems(*, author:profiles(*))')
+      .eq('date', todayISO())
+      .maybeSingle()
+
+    if (pick?.poem) {
+      setPoemQuote(pick.poem as unknown as Poem)
+      setTextQuote(null)
+    } else {
+      setPoemQuote(null)
+      await loadFallbackQuote()
+    }
+    setLoading(false)
+  }, [loadFallbackQuote])
+
+  useEffect(() => {
+    load()
+    window.addEventListener(QUOTE_OF_DAY_CHANGED_EVENT, load)
+    return () => window.removeEventListener(QUOTE_OF_DAY_CHANGED_EVENT, load)
+  }, [load])
+
   const handleRemove = async () => {
-    if (!user) return
+    if (!isAdmin) return
     setRemoving(true)
-    const { error } = await supabase.from('quote_of_day').delete().eq('date', todayISO())
+    const { error } = await clearQuoteOfDay()
     setRemoving(false)
     if (!error) {
       setPoemQuote(null)
@@ -82,7 +75,7 @@ export default function QuoteOfDayBanner() {
       </div>
       <div className="flex items-start justify-between gap-3">
         <p className="text-xs font-semibold uppercase tracking-widest text-gold-400">Quote of the Day</p>
-        {poemQuote && user && (
+        {poemQuote && isAdmin && (
           <button
             onClick={handleRemove}
             disabled={removing}
@@ -111,7 +104,8 @@ export default function QuoteOfDayBanner() {
         </>
       ) : (
         <p className="mt-2 text-sm text-paper-100/80">
-          No quote has been picked for today yet. Tap the quote icon on any shayari to feature it here.
+          No quote has been picked for today yet.
+          {isAdmin ? ' Tap the quote icon on any shayari to feature it here.' : ' Check back soon.'}
         </p>
       )}
     </div>
