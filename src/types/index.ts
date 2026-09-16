@@ -25,7 +25,12 @@ export interface Poem {
   bookmarked_by_me?: boolean
 }
 
-export type SubmissionCategory = 'shayari' | 'poem' | 'quote' | 'story' | 'other'
+// Submission "type" now uses the same categories shown on the home page
+// (love/sad/joyful/nazm/dosti/ghazal/sher/kavita). `string` covers the
+// handful of older submissions saved before this change (shayari/poem/
+// quote/story/other) — the DB still accepts them, they just no longer
+// appear as choices on the Write page.
+export type SubmissionCategory = PoemCategory | string
 
 export type SubmissionStatus = 'pending' | 'approved' | 'rejected'
 

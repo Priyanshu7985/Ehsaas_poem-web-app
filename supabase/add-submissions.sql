@@ -84,8 +84,13 @@ create table if not exists public.submissions (
   title text,
   content text not null,
   author_name text not null,
-  category text not null default 'shayari'
-    check (category in ('shayari', 'poem', 'quote', 'story', 'other')),
+  category text not null default 'love'
+    check (category in (
+      'love', 'sad', 'joyful', 'nazm', 'dosti', 'ghazal', 'sher', 'kavita',
+      -- legacy values from an earlier version of the Write page, kept
+      -- valid in case any submissions were already saved under them
+      'shayari', 'poem', 'quote', 'story', 'other'
+    )),
   status text not null default 'pending'
     check (status in ('pending', 'approved', 'rejected')),
   admin_note text,

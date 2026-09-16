@@ -4,14 +4,14 @@ import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import RequireAuthGate from '../components/RequireAuthGate'
 import { SUBMISSION_CATEGORIES } from '../lib/submissions'
-import type { SubmissionCategory } from '../types'
+import type { PoemCategory } from '../types'
 
 function WriteForm() {
   const { user, profile } = useAuth()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [authorName, setAuthorName] = useState('')
-  const [category, setCategory] = useState<SubmissionCategory>('shayari')
+  const [category, setCategory] = useState<PoemCategory>('love')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -26,7 +26,7 @@ function WriteForm() {
   const resetForm = () => {
     setTitle('')
     setContent('')
-    setCategory('shayari')
+    setCategory('love')
     setError(null)
     setSubmitted(false)
   }

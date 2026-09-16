@@ -1,30 +1,28 @@
-import type { PoemCategory, SubmissionCategory, SubmissionStatus } from '../types'
+import { CATEGORIES, isPoemCategory } from './categories'
+import type { PoemCategory, SubmissionStatus } from '../types'
 
-export const SUBMISSION_CATEGORIES: {
-  slug: SubmissionCategory
-  label: string
-  emoji: string
-}[] = [
-  { slug: 'shayari', label: 'Shayari', emoji: '✒️' },
-  { slug: 'poem', label: 'Poem', emoji: '🕊️' },
-  { slug: 'quote', label: 'Quote', emoji: '❝' },
-  { slug: 'story', label: 'Story', emoji: '📖' },
-  { slug: 'other', label: 'Other', emoji: '📝' },
-]
+// The Write page's "Type" selector reuses the exact same categories shown
+// on the home page / category nav, so a submission's type already matches
+// a valid poem category by the time an admin approves it.
+export const SUBMISSION_CATEGORIES = CATEGORIES
 
 export function submissionCategoryLabel(slug: string) {
-  return SUBMISSION_CATEGORIES.find((c) => c.slug === slug)?.label ?? slug
+  return CATEGORIES.find((c) => c.slug === slug)?.label ?? slug
 }
 
 export function submissionCategoryEmoji(slug: string) {
-  return SUBMISSION_CATEGORIES.find((c) => c.slug === slug)?.emoji ?? '📝'
+  return CATEGORIES.find((c) => c.slug === slug)?.emoji ?? '📝'
 }
 
 /**
  * Default poem category suggested to the admin when approving a
  * submission. The admin can always override it in the approve panel.
+ * Submissions created after this change already carry a valid poem
+ * category; the fallback mapping only covers older submissions saved
+ * under the previous Shayari/Poem/Quote/Story/Other types.
  */
-export function suggestedPoemCategory(slug: SubmissionCategory): PoemCategory {
+export function suggestedPoemCategory(slug: string): PoemCategory {
+  if (isPoemCategory(slug)) return slug
   switch (slug) {
     case 'shayari':
       return 'sher'
